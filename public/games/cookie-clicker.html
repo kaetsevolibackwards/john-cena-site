@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cookie Clicker</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #8B4513; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: Arial, sans-serif; }
+        .container { text-align: center; background: #D2691E; padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        h1 { color: #fff; margin: 0 0 20px 0; }
+        #cookie { width: 150px; height: 150px; background: radial-gradient(circle at 30% 30%, #FFDB58, #DAA520); border: 3px solid #8B4513; border-radius: 50%; cursor: pointer; margin: 20px auto; font-size: 60px; display: flex; align-items: center; justify-content: center; user-select: none; transition: transform 0.1s; }
+        #cookie:active { transform: scale(0.95); }
+        #stats { color: #fff; font-size: 18px; margin: 20px 0; }
+        .upgrades { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .upgrade { background: #CD853F; color: #fff; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-size: 14px; transition: 0.2s; }
+        .upgrade:hover { background: #DAA520; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍪 COOKIE CLICKER 🍪</h1>
+        <div id="cookie" onclick="clickCookie()">🍪</div>
+        <div id="stats">Cookies: <span id="cookies">0</span></div>
+        <div id="stats">Per Second: <span id="perSec">0</span></div>
+        <div class="upgrades">
+            <button class="upgrade" onclick="buyUpgrade('grandma')">Grandma (15 🍪)</button>
+            <button class="upgrade" onclick="buyUpgrade('farm')">Farm (100 🍪)</button>
+            <button class="upgrade" onclick="buyUpgrade('factory')">Factory (500 🍪)</button>
+            <button class="upgrade" onclick="buyUpgrade('mine')">Mine (2000 🍪)</button>
+        </div>
+    </div>
+    <script>
+        let cookies = 0;
+        let perSecond = 0;
+        let grandmas = 0;
+        let farms = 0;
+        let factories = 0;
+        let mines = 0;
+        
+        function clickCookie() {
+            cookies++;
+            document.getElementById('cookies').textContent = Math.floor(cookies);
+            document.getElementById('cookie').style.transform = 'scale(0.9)';
+            setTimeout(() => { document.getElementById('cookie').style.transform = 'scale(1)'; }, 100);
+        }
+        
+        function buyUpgrade(type) {
+            let cost = 0;
+            let count = 0;
+            if (type === 'grandma') { cost = 15; grandmas++; count = grandmas; perSecond += 0.1; }
+            else if (type === 'farm') { cost = 100; farms++; count = farms; perSecond += 1; }
+            else if (type === 'factory') { cost = 500; factories++; count = factories; perSecond += 10; }
+            else if (type === 'mine') { cost = 2000; mines++; count = mines; perSecond += 50; }
+            
+            if (cookies >= cost) {
+                cookies -= cost;
+                document.getElementById('cookies').textContent = Math.floor(cookies);
+                document.getElementById('perSec').textContent = perSecond.toFixed(1);
+            }
+        }
+        
+        setInterval(() => {
+            cookies += perSecond / 10;
+            document.getElementById('cookies').textContent = Math.floor(cookies);
+        }, 100);
+    </script>
+</body>
+</html>
