@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pac-Man</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #000; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: Arial, sans-serif; }
+        .container { text-align: center; }
+        canvas { background: #000; border: 2px solid #0f0; display: block; margin: 20px auto; }
+        h1, p { color: #0f0; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PAC-MAN</h1>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <p>Arrow Keys to Move</p>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const tileSize = 20;
+        const tileCount = canvas.width / tileSize;
+        
+        let pacman = { x: 9, y: 9, dir: 0, nextDir: 0 };
+        let ghosts = [
+            { x: 1, y: 1, color: '#ff0000' },
+            { x: tileCount - 2, y: 1, color: '#ffb8ff' },
+            { x: 1, y: tileCount - 2, color: '#00ffff' },
+            { x: tileCount - 2, y: tileCount - 2, color: '#ffb856' }
+        ];
+        let maze = [];
+        let score = 0;
+        let gameRunning = true;
+        
+        function initMaze() {
+            maze = [];
+            for (let i = 0; i < tileCount; i++) {
+                maze[i] = [];
+                for (let j = 0; j < tileCount; j++) {
+                    if (i === 0 || i === tileCount - 1 || j === 0 || j === tileCount - 1) {
+                        maze[i][j] = 1;
+                    } else {
+                        maze[i][j] = 2;
+                    }
+                }
+            }
+        }
+        
+        function draw() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            for (let i = 0; i < tileCount; i++) {
+                for (let j = 0; j < tileCount; j++) {
+                    if (maze[i][j] === 1) {
+                        ctx.fillStyle = '#0f0';
+                        ctx.fillRect(j * tileSize, i * tileSize, tileSize, tileSize);
+                    } else if (maze[i][j] === 2) {
+                        ctx.fillStyle = '#ffff00';
+                        ctx.fillRect(j * tileSize + 8, i * tileSize + 8, 4, 4);
+                    }
+                }
+            }
+            
+            ctx.fillStyle = '#ffff00';
+            ctx.beginPath();
+            ctx.arc(pacman.x * tileSize + tileSize / 2, pacman.y * tileSize + tileSize / 2, 7, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ghosts.forEach(ghost => {
+                ctx.fillStyle = ghost.color;
+                ctx.fillRect(ghost.x * tileSize + 2, ghost.y * tileSize + 2, tileSize - 4, tileSize - 4);
+            });
+        }
+        
+        function update() {
+            if (maze[pacman.y][pacman.x] === 2) {
+                maze[pacman.y][pacman.x] = 0;
+                score += 10;
+            }
+            
+            draw();
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') pacman.nextDir = 0;
+            if (e.key === 'ArrowDown') pacman.nextDir = 1;
+            if (e.key === 'ArrowLeft') pacman.nextDir = 2;
+            if (e.key === 'ArrowRight') pacman.nextDir = 3;
+        });
+        
+        initMaze();
+        setInterval(update, 100);
+    </script>
+</body>
+</html>

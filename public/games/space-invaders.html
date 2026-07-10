@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Space Invaders</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #000; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: Arial, sans-serif; }
+        .container { text-align: center; }
+        canvas { background: #000; border: 2px solid #0f0; display: block; margin: 20px auto; }
+        h1, p { color: #0f0; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SPACE INVADERS</h1>
+        <canvas id="gameCanvas" width="400" height="500"></canvas>
+        <p>Arrow Keys to Move | Space to Shoot | Score: <span id="score">0</span></p>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let player = { x: canvas.width / 2 - 15, y: canvas.height - 40, width: 30, height: 30, speed: 5 };
+        let bullets = [];
+        let enemies = [];
+        let score = 0;
+        let gameRunning = true;
+        
+        function createEnemies() {
+            for (let i = 0; i < 8; i++) {
+                enemies.push({ x: i * 40 + 30, y: 30, width: 30, height: 30, speed: 1 });
+            }
+        }
+        
+        function draw() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0f0';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            
+            ctx.fillStyle = '#ff0000';
+            enemies.forEach(enemy => {
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            });
+            
+            ctx.fillStyle = '#ffff00';
+            bullets.forEach(bullet => {
+                ctx.fillRect(bullet.x, bullet.y, 5, 15);
+            });
+            
+            document.getElementById('score').textContent = score;
+        }
+        
+        function update() {
+            enemies.forEach(enemy => {
+                enemy.x += enemy.speed;
+            });
+            
+            bullets = bullets.filter(b => {
+                b.y -= 7;
+                return b.y > 0;
+            });
+            
+            bullets.forEach((bullet, bi) => {
+                enemies.forEach((enemy, ei) => {
+                    if (bullet.x < enemy.x + enemy.width && bullet.x + 5 > enemy.x &&
+                        bullet.y < enemy.y + enemy.height && bullet.y + 15 > enemy.y) {
+                        score += 100;
+                        enemies.splice(ei, 1);
+                        bullets.splice(bi, 1);
+                    }
+                });
+            });
+            
+            if (enemies.length === 0) {
+                createEnemies();
+            }
+            
+            draw();
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && player.x > 0) player.x -= player.speed;
+            if (e.key === 'ArrowRight' && player.x < canvas.width - player.width) player.x += player.speed;
+            if (e.key === ' ') bullets.push({ x: player.x + player.width / 2, y: player.y });
+        });
+        
+        createEnemies();
+        setInterval(update, 50);
+    </script>
+</body>
+</html>

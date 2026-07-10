@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hangman</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #000; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: Arial, sans-serif; }
+        .container { text-align: center; color: #fff; background: #1a1a1a; padding: 30px; border-radius: 10px; }
+        h1 { margin: 0 0 20px 0; color: #0f0; }
+        .hangman { font-size: 40px; margin: 20px 0; }
+        .word { font-size: 40px; letter-spacing: 10px; margin: 20px 0; font-family: monospace; }
+        .guesses { margin: 20px 0; }
+        .letters { display: grid; grid-template-columns: repeat(7, 40px); gap: 5px; margin: 20px auto; width: fit-content; }
+        .letter { width: 40px; height: 40px; background: #333; color: #0f0; border: 2px solid #0f0; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .letter:disabled { background: #111; color: #666; border-color: #666; cursor: not-allowed; }
+        button { padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HANGMAN</h1>
+        <div class="hangman" id="hangman">😊</div>
+        <div class="word" id="word"></div>
+        <div class="guesses">Wrong Guesses: <span id="wrong">0</span>/6</div>
+        <div class="letters" id="letters"></div>
+        <button onclick="newGame()">New Game</button>
+    </div>
+    <script>
+        const words = ['JAVASCRIPT', 'HANGMAN', 'PROGRAMMING', 'COMPUTER', 'INTERNET', 'BROWSER', 'WEBSITE', 'FUNCTION', 'VARIABLE', 'ALGORITHM'];
+        const hangmanStages = ['😊', '😐', '😕', '😟', '😨', '😵', '💀'];
+        
+        let word = '';
+        let guessed = [];
+        let wrong = 0;
+        let gameOver = false;
+        
+        function newGame() {
+            word = words[Math.floor(Math.random() * words.length)];
+            guessed = [];
+            wrong = 0;
+            gameOver = false;
+            render();
+        }
+        
+        function guessLetter(letter) {
+            if (!guessed.includes(letter)) {
+                guessed.push(letter);
+                if (!word.includes(letter)) {
+                    wrong++;
+                }
+            }
+            
+            if (wrong >= 6) {
+                gameOver = true;
+                alert('Game Over! The word was: ' + word);
+                newGame();
+            }
+            
+            let won = true;
+            for (let char of word) {
+                if (!guessed.includes(char)) {
+                    won = false;
+                    break;
+                }
+            }
+            if (won) {
+                alert('You won!');
+                newGame();
+            }
+            
+            render();
+        }
+        
+        function render() {
+            document.getElementById('hangman').textContent = hangmanStages[wrong];
+            document.getElementById('wrong').textContent = wrong;
+            
+            let wordDisplay = '';
+            for (let char of word) {
+                if (guessed.includes(char)) {
+                    wordDisplay += char + ' ';
+                } else {
+                    wordDisplay += '_ ';
+                }
+            }
+            document.getElementById('word').textContent = wordDisplay;
+            
+            const lettersDiv = document.getElementById('letters');
+            lettersDiv.innerHTML = '';
+            for (let i = 65; i <= 90; i++) {
+                const letter = String.fromCharCode(i);
+                const btn = document.createElement('button');
+                btn.textContent = letter;
+                btn.className = 'letter';
+                btn.disabled = guessed.includes(letter);
+                btn.onclick = () => guessLetter(letter);
+                lettersDiv.appendChild(btn);
+            }
+        }
+        
+        newGame();
+    </script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Minesweeper</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #000; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: Arial, sans-serif; }
+        .container { text-align: center; color: #fff; }
+        .grid { display: grid; grid-template-columns: repeat(10, 30px); gap: 2px; margin: 20px auto; }
+        .cell { width: 30px; height: 30px; background: #ccc; border: 2px outset #999; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .cell:active { border-style: inset; }
+        .cell.revealed { background: #ddd; border-style: inset; }
+        .cell.flagged { background: #ff6; }
+        .cell.mine { background: #f00; }
+        button { padding: 10px 20px; font-size: 16px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 10px; }
+        h1 { margin: 0 0 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MINESWEEPER</h1>
+        <div class="grid" id="grid"></div>
+        <button onclick="newGame()">New Game</button>
+    </div>
+    <script>
+        const GRID_SIZE = 10;
+        const MINES = 10;
+        let board = [];
+        let revealed = [];
+        let flagged = [];
+        
+        function initBoard() {
+            board = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(0));
+            revealed = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(false));
+            flagged = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(false));
+            
+            let minesPlaced = 0;
+            while (minesPlaced < MINES) {
+                let r = Math.floor(Math.random() * GRID_SIZE);
+                let c = Math.floor(Math.random() * GRID_SIZE);
+                if (board[r][c] !== 'M') {
+                    board[r][c] = 'M';
+                    minesPlaced++;
+                }
+            }
+            
+            for (let i = 0; i < GRID_SIZE; i++) {
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    if (board[i][j] !== 'M') {
+                        let count = 0;
+                        for (let di = -1; di <= 1; di++) {
+                            for (let dj = -1; dj <= 1; dj++) {
+                                let ni = i + di, nj = j + dj;
+                                if (ni >= 0 && ni < GRID_SIZE && nj >= 0 && nj < GRID_SIZE && board[ni][nj] === 'M') count++;
+                            }
+                        }
+                        board[i][j] = count;
+                    }
+                }
+            }
+            render();
+        }
+        
+        function reveal(r, c) {
+            if (revealed[r][c]) return;
+            revealed[r][c] = true;
+            if (board[r][c] === 'M') {
+                alert('Game Over!');
+                newGame();
+            } else if (board[r][c] === 0) {
+                for (let di = -1; di <= 1; di++) {
+                    for (let dj = -1; dj <= 1; dj++) {
+                        let ni = r + di, nj = c + dj;
+                        if (ni >= 0 && ni < GRID_SIZE && nj >= 0 && nj < GRID_SIZE) {
+                            reveal(ni, nj);
+                        }
+                    }
+                }
+            }
+            render();
+        }
+        
+        function toggleFlag(r, c, e) {
+            e.preventDefault();
+            if (!revealed[r][c]) {
+                flagged[r][c] = !flagged[r][c];
+                render();
+            }
+        }
+        
+        function render() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < GRID_SIZE; i++) {
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    if (revealed[i][j]) {
+                        cell.classList.add('revealed');
+                        if (board[i][j] === 'M') {
+                            cell.classList.add('mine');
+                            cell.textContent = '💣';
+                        } else if (board[i][j] > 0) {
+                            cell.textContent = board[i][j];
+                        }
+                    } else if (flagged[i][j]) {
+                        cell.classList.add('flagged');
+                        cell.textContent = '🚩';
+                    }
+                    cell.onclick = () => reveal(i, j);
+                    cell.oncontextmenu = (e) => toggleFlag(i, j, e);
+                    grid.appendChild(cell);
+                }
+            }
+        }
+        
+        function newGame() {
+            initBoard();
+        }
+        
+        newGame();
+    </script>
+</body>
+</html>
